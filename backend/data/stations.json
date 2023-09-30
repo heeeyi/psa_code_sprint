@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Woodlands",
+    "cargo_amount": 100
+  },
+  {
+    "name": "Yishun",
+    "cargo_amount": 150
+  },
+  {
+    "name": "Ang Mo Kio",
+    "cargo_amount": 200
+  },
+  {
+    "name": "Bishan",
+    "cargo_amount": 120
+  },
+  {
+    "name": "Toa Payoh",
+    "cargo_amount": 130
+  },
+  {
+    "name": "Serangoon",
+    "cargo_amount": 140
+  },
+  {
+    "name": "Punggol",
+    "cargo_amount": 110
+  },
+  {
+    "name": "Sengkang",
+    "cargo_amount": 160
+  },
+  {
+    "name": "Hougang",
+    "cargo_amount": 180
+  },
+  {
+    "name": "Bukit Timah",
+    "cargo_amount": 170
+  },
+  {
+    "name": "Something",
+    "cargo_amount": 200
+  }
+]

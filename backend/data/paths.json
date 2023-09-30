@@ -1,0 +1,82 @@
+[
+  {
+    "src": "Woodlands",
+    "dst": "Yishun",
+    "distance": 5
+  },
+  {
+    "src": "Yishun",
+    "dst": "Ang Mo Kio",
+    "distance": 7
+  },
+  {
+    "src": "Ang Mo Kio",
+    "dst": "Bishan",
+    "distance": 4
+  },
+  {
+    "src": "Bishan",
+    "dst": "Toa Payoh",
+    "distance": 11
+  },
+  {
+    "src": "Toa Payoh",
+    "dst": "Serangoon",
+    "distance": 6
+  },
+  {
+    "src": "Serangoon",
+    "dst": "Punggol",
+    "distance": 5
+  },
+  {
+    "src": "Punggol",
+    "dst": "Sengkang",
+    "distance": 10
+  },
+  {
+    "src": "Sengkang",
+    "dst": "Hougang",
+    "distance": 6
+  },
+  {
+    "src": "Hougang",
+    "dst": "Bukit Timah",
+    "distance": 8
+  },
+  {
+    "src": "Bukit Timah",
+    "dst": "Woodlands",
+    "distance": 9
+  },
+  {
+    "src": "Serangoon",
+    "dst": "Ang Mo Kio",
+    "distance": 5
+  },
+  {
+    "src": "Bishan",
+    "dst": "Serangoon",
+    "distance": 4
+  },
+  {
+    "src": "Hougang",
+    "dst": "Sengkang",
+    "distance": 3
+  },
+  {
+    "src": "Bishan",
+    "dst": "Woodlands",
+    "distance": 12
+  },
+  {
+    "src": "Toa Payoh",
+    "dst": "Yishun",
+    "distance": 10
+  },
+  {
+    "src": "Something",
+    "dst": "Bishan",
+    "distance": 13
+  }
+]
