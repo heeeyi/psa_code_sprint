@@ -3,13 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const cors = require('cors');
 const bodyParser = require("body-parser");
+const Heap = require('heap');
 
 const app = express();
 const port = 3333;
 
 // Adjust origin based on frontend port
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:8080',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true
 };
@@ -19,6 +20,7 @@ app.use(express.json());
 
 // get stations
 app.get('/stations', (req, res) => {
+
     fs.readFile(path.join(__dirname, 'data/stations.json'), 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('An error occurred');
@@ -36,6 +38,47 @@ app.get('/paths', (req, res) => {
         return res.json(JSON.parse(data));
     });
 });
+
+
+// get optimal routes
+app.get('/route', (req, res) => {
+    console.log(req.query);
+
+    const { src, dst } = req.query;
+    // since this is a GET request, need to use req.query instead of req.body!
+
+    const stations = JSON.parse(fs.readFileSync('data/stations.json', 'utf8'));
+    const paths = JSON.parse(fs.readFileSync('data/paths.json', 'utf8'));
+
+    // check validity of data
+    if (!src || !dst) {
+        return res.status(400).send("Invalid station data");
+    }
+    const srcExists = stations.some(station => station.name === src);
+    const dstExists = stations.some(station => station.name === dst);
+    if (!srcExists || !dstExists) {
+        return res.status(400).send('Invalid src or dst');
+    }
+
+    try {
+        // generate optimal route
+        const result = getOptimalRoute(src, dst, stations, paths);
+
+        if (result.error) {
+            return res.status(400).json({ error: result.error });
+        }
+
+        res.status(200).json({
+            name: result.theRoute,
+            cargo: result.totalCargo,
+            distance: result.totalDistance
+        });
+    } catch (error) {
+        console.error('Error occurred:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 // add stations
 app.post('/stations/add', (req, res) => {
@@ -216,6 +259,79 @@ app.put('/paths/update', (req, res) => {
     return res.status(200).send('Path updated successfully');
 
 });
+
+
+function getOptimalRoute(src, dst, stations, paths) {
+
+    // hash station name and cargo:
+    // This makes key = name, value = cargo_amount
+    const stationCargoMap = new Map(
+        stations.map(station => [station.name, station.cargo_amount])
+    );
+
+    // create adjacency list, use l - 0.6c as cost
+    // l = distance to NEXT station, c = THIS station's cargo
+    const graph = new Map();
+    stations.forEach(station => graph.set(station.name, []));
+    paths.forEach(path => {
+        const cSrc = stationCargoMap.get(path.src);
+        const cDst = stationCargoMap.get(path.dst);
+        graph.get(path.src).push({
+            node: path.dst,
+            cost: path.distance - 0.02 * cSrc
+        });
+        graph.get(path.dst).push({
+            node: path.src,
+            cost: path.distance - 0.02 * cDst
+        });
+    });
+
+    // Dijkstra
+    let dist = {};    // shortest known distance to each node
+    let prev = {};    // previous node on the shortest path of each node
+    let pq = new Heap((a, b) => a.cost - b.cost);
+    pq.push({ node: src, cost: 0 });
+    dist[src] = 0;
+    // const = value cannot be changed once assigned; let = can be re-assigned
+
+    while (!pq.empty()) {
+        let { node, cost } = pq.pop();
+        if (node == dst) { // reached the destination
+            break;
+        }
+        if (!graph.has(node)) continue; // prevent run-time error
+        graph.get(node).forEach(neighbour => {
+            const alt = cost + neighbour.cost;
+            if (dist[neighbour.node] === undefined || alt < dist[neighbour.node]) {
+                dist[neighbour.node] = alt;
+                prev[neighbour.node] = node;
+                pq.push({ node: neighbour.node, cost: alt });
+            }
+        });
+    }
+
+    // reconstruct path and calculate total amount
+    let totalDistance = dist[dst] || -1;
+    let totalCargo = 0;
+    let theRoute = [];
+    for (let ptr = dst; ptr != null; ptr = prev[ptr]) {
+        theRoute.push(ptr);
+        if (ptr !== src && ptr !== dst) {
+            totalCargo += stationCargoMap.get(ptr);
+        }
+    }
+    theRoute.reverse();
+
+    if (theRoute[0] !== src || theRoute[theRoute.length - 1] !== dst) {
+        return { error: 'No path exists' };
+    }
+
+    return {
+        theRoute,
+        totalCargo,
+        totalDistance
+    };
+};
 
 // Start the server
 app.listen(port, () => {

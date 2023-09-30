@@ -2,7 +2,7 @@
   {
     "src": "Woodlands",
     "dst": "Yishun",
-    "distance": 5
+    "distance": 9
   },
   {
     "src": "Yishun",
@@ -12,7 +12,7 @@
   {
     "src": "Ang Mo Kio",
     "dst": "Bishan",
-    "distance": 4
+    "distance": 16
   },
   {
     "src": "Bishan",
@@ -20,24 +20,14 @@
     "distance": 11
   },
   {
-    "src": "Toa Payoh",
-    "dst": "Serangoon",
-    "distance": 6
-  },
-  {
     "src": "Serangoon",
     "dst": "Punggol",
-    "distance": 5
-  },
-  {
-    "src": "Punggol",
-    "dst": "Sengkang",
-    "distance": 10
+    "distance": 8
   },
   {
     "src": "Sengkang",
     "dst": "Hougang",
-    "distance": 6
+    "distance": 14
   },
   {
     "src": "Hougang",
@@ -57,26 +47,26 @@
   {
     "src": "Bishan",
     "dst": "Serangoon",
-    "distance": 4
+    "distance": 12
   },
   {
     "src": "Hougang",
-    "dst": "Sengkang",
-    "distance": 3
+    "dst": "Toa Payoh",
+    "distance": 13
   },
   {
     "src": "Bishan",
     "dst": "Woodlands",
-    "distance": 12
+    "distance": 20
   },
   {
     "src": "Toa Payoh",
     "dst": "Yishun",
-    "distance": 10
+    "distance": 100
   },
   {
     "src": "Something",
-    "dst": "Bishan",
+    "dst": "Woodlands",
     "distance": 13
   }
 ]
