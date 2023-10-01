@@ -55,19 +55,19 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>Search Route</span>
     </el-header>
     
     <el-main>
        <el-form :label-position="labelPosition" label-width="140px" :model="formLabelAlign">
-      <el-form-item label="Name">
-        <el-input v-model="formLabelAlign.name"></el-input>
+      <el-form-item label="source">
+        <el-input v-model="formLabelAlign.source"></el-input>
       </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
+      <el-form-item label="destination">
+        <el-input v-model="formLabelAlign.destination"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="info" @click="onSubmit">Create</el-button>
+        <el-button type="info" @click="onSubmit">Search</el-button>
       </el-form-item>
     </el-form>
     </el-main>
@@ -98,48 +98,33 @@ export default {
     },
     methods: {
         onSubmit() {
-      // Create a JSON object with the data
-      const requestData = {
-        name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
-      };
+      // Get the source and destination from the form
+      const src = this.formLabelAlign.source.trim();
+      const dst = this.formLabelAlign.destination.trim();
 
+      // Check if either source or destination is empty
+      if (!src || !dst) {
+        this.showAlert('Source and destination are required.', 'error');
+        return;
+      }
+
+      // Send a GET request to the backend
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        .get(`http://localhost:3333/route?src=${src}&dst=${dst}`)
         .then((response) => {
-          if (response.status === 200) {
-            const message = response.data;
-            this.$alert(message, 'Message', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'info',
-                  message: `action: ${action}`,
-                });
-              },
-            });
-          } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'error',
-                  message: `action: ${action}`,
-                });
-              },
-            });
-          }
+          const { name, cargo, distance } = response.data;
+          const message = `Route: ${name.join(' -> ')}, Cargo: ${cargo}, Distance: ${distance}`;
+          this.showAlert(message, 'info');
         })
         .catch((error) => {
           console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
-            confirmButtonText: 'OK',
-          });
+          this.showAlert('Error searching route.', 'error');
         });
+    },
+    showAlert(message) {
+      this.$alert(message, 'Result', {
+        confirmButtonText: 'OK',
+      });
     },
     },
     mounted () {

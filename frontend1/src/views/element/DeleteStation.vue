@@ -55,7 +55,7 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>Delete Station</span>
     </el-header>
     
     <el-main>
@@ -63,11 +63,8 @@
       <el-form-item label="Name">
         <el-input v-model="formLabelAlign.name"></el-input>
       </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
-      </el-form-item>
       <el-form-item>
-        <el-button type="info" @click="onSubmit">Create</el-button>
+        <el-button type="info" @click="onSubmit">Delete</el-button>
       </el-form-item>
     </el-form>
     </el-main>
@@ -101,15 +98,10 @@ export default {
       // Create a JSON object with the data
       const requestData = {
         name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
       };
 
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        .delete('http://localhost:3333/stations/delete', { data: requestData })
         .then((response) => {
           if (response.status === 200) {
             const message = response.data;
@@ -118,25 +110,25 @@ export default {
               callback: (action) => {
                 this.$message({
                   type: 'info',
-                  message: `action: ${action}`,
+                  message: `Action: ${action}`,
                 });
               },
             });
           } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
+            this.$alert('Failed to delete station.', 'Error', {
               confirmButtonText: 'OK',
               callback: (action) => {
                 this.$message({
                   type: 'error',
-                  message: `action: ${action}`,
+                  message: `Action: ${action}`,
                 });
               },
             });
           }
         })
         .catch((error) => {
-          console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
+          console.error('Axios Error:', error); // Log the error for debugging
+          this.$alert(error.response.data, 'Error', {
             confirmButtonText: 'OK',
           });
         });

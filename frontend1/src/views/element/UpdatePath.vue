@@ -55,16 +55,25 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>Update Path</span>
     </el-header>
     
     <el-main>
        <el-form :label-position="labelPosition" label-width="140px" :model="formLabelAlign">
-      <el-form-item label="Name">
-        <el-input v-model="formLabelAlign.name"></el-input>
+      <el-form-item label="Source">
+        <el-input v-model="formLabelAlign.source"></el-input>
       </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
+      <el-form-item label="Destination">
+        <el-input v-model="formLabelAlign.destination"></el-input>
+      </el-form-item>
+      <el-form-item label="Distance">
+        <el-input v-model="formLabelAlign.distance"></el-input>
+      </el-form-item>
+      <el-form-item label="New_Source">
+        <el-input v-model="formLabelAlign.final_src"></el-input>
+      </el-form-item>
+      <el-form-item label="New_Destination">
+        <el-input v-model="formLabelAlign.final_dst"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="info" @click="onSubmit">Create</el-button>
@@ -92,22 +101,27 @@ export default {
             cargo: '',
             source: '',
             destination:'',
+            final_dst:'',
+            final_src:'',
             distance:''
         }
         }
     },
     methods: {
-        onSubmit() {
+         onSubmit() {
       // Create a JSON object with the data
       const requestData = {
-        name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
+        init_src: this.formLabelAlign.source,
+        init_dst: this.formLabelAlign.destination,
+        distance: parseFloat(this.formLabelAlign.distance.trim()), // Convert distance to a number
+        final_src: this.formLabelAlign.final_src, // Assuming you want to update the source and destination
+        final_dst: this.formLabelAlign.final_dst,
       };
 
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
+        .put('http://localhost:3333/paths/update', requestData, {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', // Set the content type to JSON
           },
         })
         .then((response) => {
@@ -118,25 +132,25 @@ export default {
               callback: (action) => {
                 this.$message({
                   type: 'info',
-                  message: `action: ${action}`,
+                  message: `Action: ${action}`,
                 });
               },
             });
           } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
+            this.$alert('Failed to update path.', 'Error', {
               confirmButtonText: 'OK',
               callback: (action) => {
                 this.$message({
                   type: 'error',
-                  message: `action: ${action}`,
+                  message: `Action: ${action}`,
                 });
               },
             });
           }
         })
         .catch((error) => {
-          console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
+          console.error('Axios Error:', error); // Log the error for debugging
+          this.$alert(error.response.data, 'Error', {
             confirmButtonText: 'OK',
           });
         });

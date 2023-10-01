@@ -55,19 +55,19 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>Search Path</span>
     </el-header>
     
     <el-main>
        <el-form :label-position="labelPosition" label-width="140px" :model="formLabelAlign">
-      <el-form-item label="Name">
-        <el-input v-model="formLabelAlign.name"></el-input>
+      <el-form-item label="Source">
+        <el-input v-model="formLabelAlign.source"></el-input>
       </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
+      <el-form-item label="Destination">
+        <el-input v-model="formLabelAlign.destination"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="info" @click="onSubmit">Create</el-button>
+        <el-button type="info" @click="onSubmit">Search</el-button>
       </el-form-item>
     </el-form>
     </el-main>
@@ -98,48 +98,56 @@ export default {
     },
     methods: {
         onSubmit() {
-      // Create a JSON object with the data
-      const requestData = {
-        name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
+      // Create JSON object with search query
+      const query = {
+        source: this.formLabelAlign.source,
+        destination: this.formLabelAlign.destination,
       };
 
+      // Send a GET request to fetch all paths
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        .get('http://localhost:3333/paths')
         .then((response) => {
           if (response.status === 200) {
-            const message = response.data;
-            this.$alert(message, 'Message', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'info',
-                  message: `action: ${action}`,
-                });
-              },
-            });
+            const paths = response.data;
+
+            // Filter paths based on source and destination
+            const matchingPaths = paths.filter((path) =>
+              path.src.toLowerCase() === query.source.toLowerCase() &&
+              path.dst.toLowerCase() === query.destination.toLowerCase()
+            );
+
+            if (matchingPaths.length > 0) {
+              // Display the matching paths
+              const message = matchingPaths.map((path) =>
+                `Source: ${path.src}, Destination: ${path.dst}, Distance: ${path.distance}`
+              ).join('\n');
+              this.showAlert(message, 'info');
+            } else {
+              const message = 'Path not found.';
+              this.showAlert(message, 'info');
+            }
           } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'error',
-                  message: `action: ${action}`,
-                });
-              },
-            });
+            // Handle error if necessary
+            console.error('Failed to fetch paths:', response);
+            const message = 'Failed to fetch paths'; // Set error message
+            this.showAlert(message, 'error');
           }
         })
         .catch((error) => {
           console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
-            confirmButtonText: 'OK',
-          });
         });
+    },
+    showAlert(message, type) {
+      this.$alert(message, 'Result', {
+        confirmButtonText: 'OK',
+        callback: (action) => {
+          this.$message({
+            type: type,
+            message: `action: ${action}`,
+          });
+        },
+      });
     },
     },
     mounted () {

@@ -15,7 +15,7 @@
         <template slot="title"><i class="el-icon-circle-plus"></i>New</template>
           <el-menu-item index="1-1">
             <router-link to="/ns">New Station</router-link>
-          </el-menu-item>
+            </el-menu-item>
           <el-menu-item index="1-2">
             <router-link to="/np">New Path</router-link>
             </el-menu-item>
@@ -55,21 +55,18 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>PortEco Manager</span>
     </el-header>
     
     <el-main>
-       <el-form :label-position="labelPosition" label-width="140px" :model="formLabelAlign">
-      <el-form-item label="Name">
-        <el-input v-model="formLabelAlign.name"></el-input>
-      </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="info" @click="onSubmit">Create</el-button>
-      </el-form-item>
-    </el-form>
+      <el-table :data="tableData" model="stationCargo" max-height="400">
+        <el-table-column v-model="path.src" prop="src" label="source" width="300">
+        </el-table-column>
+        <el-table-column v-model="path.dst" prop="dst" label="destination" width="300">
+        </el-table-column>
+        <el-table-column v-model="path.distance" prop="distance" label="distance" width="300">
+        </el-table-column>
+      </el-table>
     </el-main>
   </el-container>
 </el-container>
@@ -82,67 +79,29 @@ export default {
     data () {
         return {
             tableData: [],
-            stationCargo: {
-                station:"",
-                cargo:""
-            },
-            labelPosition: 'right',
-            formLabelAlign: {
-            name: '',
-            cargo: '',
-            source: '',
-            destination:'',
-            distance:''
-        }
+            path: {
+                src:"",
+                dst:"",
+                distance:""
+            }
         }
     },
     methods: {
-        onSubmit() {
-      // Create a JSON object with the data
-      const requestData = {
-        name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
-      };
-
+        fetchData() {
+      // Send a GET request to the backend to fetch station data
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        .get(`http://localhost:3333/paths`)
         .then((response) => {
-          if (response.status === 200) {
-            const message = response.data;
-            this.$alert(message, 'Message', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'info',
-                  message: `action: ${action}`,
-                });
-              },
-            });
-          } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'error',
-                  message: `action: ${action}`,
-                });
-              },
-            });
-          }
+          // Set the response data directly to the tableData property
+          this.tableData = response.data;
         })
         .catch((error) => {
           console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
-            confirmButtonText: 'OK',
-          });
         });
     },
     },
     mounted () {
+       this.fetchData();
     }
 }
 </script>
@@ -157,4 +116,4 @@ export default {
     .el-aside {
         color: #333;
     }
-</style>
+</style> 

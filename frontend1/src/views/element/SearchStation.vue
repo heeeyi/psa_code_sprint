@@ -55,7 +55,7 @@
   
   <el-container>
     <el-header style="text-align: left; font-size: 40px">
-      <span>New Station</span>
+      <span>Search Station</span>
     </el-header>
     
     <el-main>
@@ -63,11 +63,8 @@
       <el-form-item label="Name">
         <el-input v-model="formLabelAlign.name"></el-input>
       </el-form-item>
-      <el-form-item label="Cargo amount">
-        <el-input v-model="formLabelAlign.cargo"></el-input>
-      </el-form-item>
       <el-form-item>
-        <el-button type="info" @click="onSubmit">Create</el-button>
+        <el-button type="info" @click="onSubmit">Search</el-button>
       </el-form-item>
     </el-form>
     </el-main>
@@ -98,50 +95,52 @@ export default {
     },
     methods: {
         onSubmit() {
-      // Create a JSON object with the data
-      const requestData = {
-        name: this.formLabelAlign.name,
-        cargo_amount: parseFloat(this.formLabelAlign.cargo), // Convert cargo to a number
-      };
+      // Create a JSON object with the search query
+      const query = this.formLabelAlign.name;
 
+      // Send a GET request to fetch all stations
       axios
-        .post('http://localhost:3333/stations/add', requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+        .get('http://localhost:3333/stations')
         .then((response) => {
           if (response.status === 200) {
-            const message = response.data;
-            this.$alert(message, 'Message', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'info',
-                  message: `action: ${action}`,
-                });
-              },
-            });
+            const stations = response.data;
+
+            // Find the first matching station based on the input name
+            const matchingStation = stations.find((station) =>
+              station.name.toLowerCase() === query.toLowerCase()
+            );
+
+            if (matchingStation) {
+              // Display the matching station
+              const message = `Name: ${matchingStation.name}, Cargo Amount: ${matchingStation.cargo_amount}`;
+              this.showAlert(message, 'info');
+            } else {
+              const message = 'Station not found.';
+              this.showAlert(message, 'info');
+            }
           } else {
-            this.$alert('Failed to create station. Please try again.', 'Error', {
-              confirmButtonText: 'OK',
-              callback: (action) => {
-                this.$message({
-                  type: 'error',
-                  message: `action: ${action}`,
-                });
-              },
-            });
+            // Handle error if necessary
+            console.error('Failed to fetch stations:', response);
+            const message = 'Failed to fetch stations'; // Set error message
+            this.showAlert(message, 'error');
           }
         })
         .catch((error) => {
           console.error('Axios Error:', error);
-          this.$alert('Failed to create station. Please try again.', 'Error', {
-            confirmButtonText: 'OK',
-          });
         });
     },
+    showAlert(message, type) {
+      this.$alert(message, 'Result', {
+        confirmButtonText: 'OK',
+        callback: (action) => {
+          this.$message({
+            type: type,
+            message: `action: ${action}`,
+          });
+        },
+      });
     },
+  },
     mounted () {
     }
 }
